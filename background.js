@@ -231,7 +231,10 @@ async function addToQueue(newItem) {
   
   // Update badge
   updateBadge();
-  
+
+  // Backup snapshot to chrome.storage.local
+  await backupQueueToStorage();
+
   console.log('Item added to queue:', newItem.id);
 }
 
@@ -261,7 +264,10 @@ async function deleteItem(id, notify = true) {
     clipboardQueue.splice(index, 1);
     await deleteItemFromDB(id);
     updateBadge();
-    
+
+    // Update backup
+    await backupQueueToStorage();
+
     if (notify) {
       console.log('Item deleted:', id);
     }
@@ -273,6 +279,8 @@ async function clearAllItems() {
   clipboardQueue = [];
   await clearDB();
   updateBadge();
+  // Update backup
+  await backupQueueToStorage();
   console.log('All items cleared');
 }
 
@@ -297,6 +305,33 @@ function updateBadge() {
   const count = clipboardQueue.length;
   chrome.action.setBadgeText({ text: count > 0 ? count.toString() : '' });
   chrome.action.setBadgeBackgroundColor({ color: '#4285f4' });
+}
+
+// Backup clipboardQueue to chrome.storage.local as a fallback
+async function backupQueueToStorage() {
+  try {
+    await chrome.storage.local.set({ clipboardQueueBackup: clipboardQueue });
+    // small log for debugging
+    console.log('Clipboard queue backed up to chrome.storage.local (', clipboardQueue.length, 'items)');
+  } catch (err) {
+    console.error('Failed to backup queue to chrome.storage.local:', err);
+  }
+}
+
+// Restore from storage backup (returns true if restored)
+async function restoreQueueFromStorageBackup() {
+  try {
+    const data = await chrome.storage.local.get('clipboardQueueBackup');
+    if (data && data.clipboardQueueBackup && data.clipboardQueueBackup.length > 0) {
+      clipboardQueue = data.clipboardQueueBackup.sort((a, b) => b.timestamp - a.timestamp);
+      console.log('Restored clipboard queue from chrome.storage.local backup:', clipboardQueue.length, 'items');
+      await Promise.resolve();
+      return true;
+    }
+  } catch (err) {
+    console.error('Failed to restore queue from storage backup:', err);
+  }
+  return false;
 }
 
 // Generate SHA-256 hash
@@ -449,4 +484,36 @@ async function clearDB() {
   });
 }
 
-console.log('ClipBoard+ background service worker loaded');
+// When a service worker starts up (including after browser restart), load the queue
+// This ensures clipboard history is restored after the browser or extension is restarted.
+(async () => {
+  try {
+    await loadQueueFromDB();
+    updateBadge();
+    console.log('ClipBoard+ background service worker loaded and queue restored');
+  } catch (err) {
+    console.error('Error initializing background service worker:', err);
+  }
+})();
+
+// Also attempt to restore when the browser process starts
+chrome.runtime.onStartup.addListener(async () => {
+  try {
+    console.log('chrome.runtime.onStartup: attempting to restore queue from IndexedDB');
+    await loadQueueFromDB();
+    if ((!clipboardQueue || clipboardQueue.length === 0)) {
+      console.log('No items found in IndexedDB on startup, attempting restore from chrome.storage.local backup');
+      const restored = await restoreQueueFromStorageBackup();
+      if (restored) {
+        updateBadge();
+      }
+    } else {
+      updateBadge();
+    }
+  } catch (err) {
+    console.error('Error during onStartup restore:', err);
+    // Try storage backup as fallback
+    await restoreQueueFromStorageBackup();
+    updateBadge();
+  }
+});

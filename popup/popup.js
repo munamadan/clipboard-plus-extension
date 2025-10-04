@@ -88,7 +88,7 @@ function createItemElement(item) {
   
   div.innerHTML = `
     <div class="item-preview">
-      ${contentHTML}
+      ${escapeHtml(contentHTML)}
       <span class="item-time">${timeAgo}</span>
     </div>
     <div class="item-actions">

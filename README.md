@@ -70,7 +70,7 @@ MIT License - Feel free to use and modify!
 
 ## Author
 
-[Your Name]
+Dipan Kharel
 
 ## Contributing
 
