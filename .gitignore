@@ -1,0 +1,15 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+
+# Node modules (if you add npm later)
+node_modules/
+
+# Extension packaging
+*.zip
+*.crx
+*.pem

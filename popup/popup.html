@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ClipBoard+</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="header">
+  <h1 class="logo">ClipBoard+</h1>
+  <div class="header-actions">
+    <button id="settingsBtn" class="icon-btn" title="Settings">⚙</button>
+  </div>
+</div>
+
+  <div id="clipboardContainer" class="clipboard-container">
+    <!-- Items will be inserted here dynamically -->
+  </div>
+
+  <div class="footer">
+  <span id="itemCount">0 items</span>
+  <div class="footer-actions">
+    <button id="addManualBtn" class="add-btn-footer" title="Add Manually">➕</button>
+    <button id="clearAllBtn" class="clear-btn">Clear All</button>
+  </div>
+</div>
+
+<!-- Settings Modal -->
+  <div id="settingsModal" class="modal hidden">
+    <div class="modal-content">
+      <h2>Settings</h2>
+      
+      <div class="setting-item">
+        <label class="toggle-label">
+          <span>Dark Mode</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="darkModeToggle">
+            <span class="toggle-slider"></span>
+          </label>
+        </label>
+      </div>
+
+      <div class="setting-item">
+        <label class="toggle-label">
+          <span>Allow Duplicates</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="duplicatesToggle">
+            <span class="toggle-slider"></span>
+          </label>
+        </label>
+      </div>
+
+      <div class="modal-actions">
+        <button id="closeSettingsBtn" class="btn-primary">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="addManualModal" class="modal hidden">
+    <div class="modal-content">
+      <h2>Add to Clipboard</h2>
+      
+      <div class="manual-add-container">
+        <textarea id="manualTextInput" placeholder="Paste text here..." rows="6"></textarea>
+        
+        <div class="or-divider">
+          <span>OR</span>
+        </div>
+        
+        <div class="image-paste-zone" id="imagePasteZone">
+          <p>📷 Click here and press Ctrl+V to paste an image</p>
+          <canvas id="pasteCanvas" style="display: none;"></canvas>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button id="cancelAddBtn" class="btn-secondary">Cancel</button>
+        <button id="saveManualBtn" class="btn-primary">Add to Clipboard</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+  
+</body>
+</html>
