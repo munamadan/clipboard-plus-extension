@@ -73,33 +73,47 @@ function createItemElement(item) {
   const div = document.createElement('div');
   div.className = 'clipboard-item';
   div.dataset.id = item.id;
-  
-  // Content preview
-  let contentHTML = '';
+
+  // Preview container
+  const preview = document.createElement('div');
+  preview.className = 'item-preview';
+
+  // Content preview (text or image)
   if (item.type === 'text') {
-    const preview = item.content.length > 100 ? item.content.substring(0, 100) + '...' : item.content;
-    contentHTML = `<p class="item-content">${escapeHtml(preview)}</p>`;
+    const p = document.createElement('p');
+    p.className = 'item-content';
+    const previewText = item.content.length > 100 ? item.content.substring(0, 100) + '...' : item.content;
+    p.textContent = previewText;
+    preview.appendChild(p);
   } else {
-    contentHTML = `<img src="${item.thumbnail}" alt="Clipboard image" class="item-image">`;
+    const img = document.createElement('img');
+    img.className = 'item-image';
+    // Prefer thumbnail (data URL). Fallback to originalUrl if thumbnail missing.
+    img.src = item.thumbnail || item.originalUrl || '';
+    img.alt = 'Clipboard image';
+    preview.appendChild(img);
   }
-  
+
   // Time ago
-  const timeAgo = getTimeAgo(item.timestamp);
-  
-  div.innerHTML = `
-    <div class="item-preview">
-      ${escapeHtml(contentHTML)}
-      <span class="item-time">${timeAgo}</span>
-    </div>
-    <div class="item-actions">
-      <button class="action-btn copy-btn" title="Copy" data-id="${item.id}">📋</button>
-      <button class="action-btn pin-btn ${item.pinned ? 'pinned' : ''}" title="${item.pinned ? 'Unpin' : 'Pin'}" data-id="${item.id}">
-        ${item.pinned ? '📌' : '📍'}
-      </button>
-      <button class="action-btn delete-btn" title="Delete" data-id="${item.id}">🗑</button>
-    </div>
+  const timeSpan = document.createElement('span');
+  timeSpan.className = 'item-time';
+  timeSpan.textContent = getTimeAgo(item.timestamp);
+  preview.appendChild(timeSpan);
+
+  // Actions (use innerHTML for buttons - safe static content)
+  const actions = document.createElement('div');
+  actions.className = 'item-actions';
+  actions.innerHTML = `
+    <button class="action-btn copy-btn" title="Copy" data-id="${item.id}">📋</button>
+    <button class="action-btn pin-btn ${item.pinned ? 'pinned' : ''}" title="${item.pinned ? 'Unpin' : 'Pin'}" data-id="${item.id}">
+      ${item.pinned ? '📌' : '📍'}
+    </button>
+    <button class="action-btn delete-btn" title="Delete" data-id="${item.id}">🗑</button>
   `;
-  
+
+  div.appendChild(preview);
+  div.appendChild(actions);
+
   return div;
 }
 
