@@ -13,3 +13,4 @@ node_modules/
 *.zip
 *.crx
 *.pem
+.env
