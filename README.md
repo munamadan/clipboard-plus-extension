@@ -27,11 +27,7 @@ A smart clipboard manager for Chrome/Chromium that keeps track of your clipboard
 
 ### Firefox
 
-1. Download the initial release **clipboard-extension.zip** from the Releases section  
-2. Open Firefox and go to `about:debugging#/runtime/this-firefox`  
-3. Click **"Load Temporary Add-on…"**  
-4. Select the extracted `clipboard-extension/manifest.json` file  
-5. Extension is now installed temporarily (it will be removed when Firefox restarts)  
+1. Download the extension directly at: https://addons.mozilla.org/en-US/firefox/addon/clipboard-plus/ 
 
 ## Usage
 
